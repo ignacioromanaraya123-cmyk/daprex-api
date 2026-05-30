@@ -12,23 +12,18 @@ def proxy():
     if not codigo:
         return jsonify({"error": "Ejemplo: ?codigo=5756-282-COT26"})
     
-    # Usamos el parámetro 'codigo' (no 'busqueda')
-    url = f"{URL_BASE}?codigo={codigo}&tamano_pagina=10"
+    # Usar el endpoint de DETALLE (no listado)
+    url = f"{URL_BASE}/{codigo}"
     headers = {"ticket": TICKET}
     
     try:
         response = requests.get(url, headers=headers, timeout=15)
         data = response.json()
         
-        # Verificar si la respuesta es exitosa
+        # Si la API respondió con éxito, devolvemos el payload
         if data.get('success') == 'OK':
-            items = data.get('payload', {}).get('items', [])
-            if items:
-                return jsonify(items[0])
-            else:
-                return jsonify({"error": f"No se encontró la compra con código {codigo}"})
+            return jsonify(data.get('payload'))
         else:
-            # Devolver el error exacto de la API
             return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)})
